@@ -2,24 +2,24 @@ const express = require('express')
 const app = express()
 app.use(express.json())
 
-const persons = [
+let persons = [
   { 
-    "id": "1",
+    "id": "75123",
     "name": "Arto Hellas", 
     "number": "040-123456"
   },
   { 
-    "id": "2",
+    "id": "89632",
     "name": "Ada Lovelace", 
     "number": "39-44-5323523"
   },
   { 
-    "id": "3",
+    "id": "75963",
     "name": "Dan Abramov", 
     "number": "12-43-234345"
   },
   { 
-    "id": "4",
+    "id": "85858",
     "name": "Mary Poppendieck", 
     "number": "39-23-6423122"
   }
@@ -41,6 +41,12 @@ app.get("/api/persons/:id", (req, res) => {
 app.delete('/api/persons/:id', (req, res) => {
   persons = persons.filter(person => person.id != req.params.id).concat()
   res.status(204).end()
+})
+
+app.post('/api/persons/', (req, res) => {
+  const newPerson = req.body;
+  newPerson.id = Math.round(Math.random()*1e5).toString()
+  persons = persons.concat(newPerson)
 })
 
 app.get("/api/info", (req, res) =>{
