@@ -38,6 +38,11 @@ app.get("/api/persons/:id", (req, res) => {
   }
 })
 
+app.delete('/api/persons/:id', (req, res) => {
+  persons = persons.filter(person => person.id != req.params.id).concat()
+  res.status(204).end()
+})
+
 app.get("/api/info", (req, res) =>{
   const time = new Date()
   res.send("<p>Phonebook has info for "
