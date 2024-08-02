@@ -9,31 +9,11 @@ app.use(cors())
 morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
-let persons = [
-  { 
-    "id": "75123",
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": "89632",
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": "75963",
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": "85858",
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
-
+const Person = require('./models/person')
 app.get("/api/persons", (req, res) => {
+  Person.find({}).then(persons => {
     res.json(persons)
+  })
 })
 
 app.get("/api/persons/:id", (req, res) => {
@@ -78,7 +58,7 @@ app.get("/api/info", (req, res) =>{
            + "</p>")
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
