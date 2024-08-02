@@ -32,21 +32,19 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons/', (req, res) => {
   const newPerson = req.body;
-  if (newPerson.name !== undefined && newPerson.number !== undefined) {
-    if (newPerson.name.trim() !== '' && newPerson.number.trim() !== '') {
-      if (persons.map(person => newPerson.name == person.name).includes(true)) {
-        res.send({ error: 'name must be unique' })
-      } else {
-        newPerson.id = Math.round(Math.random()*1e5).toString()
-        persons = persons.concat(newPerson)
-        res.json(newPerson)
-      }
-    } else {
-      res.send({ error: 'The name or number is missing' })
-    }
-  } else {
-    res.send({ error: 'The content is missing' })
+  if (newPerson.name == undefined && newPerson.number == undefined) {
+    return res.status(400).json({ error: 'The content is missing' })
   }
+
+  const person = new Person({
+    name: newPerson.name,
+    number: newPerson.number,
+  })
+  person.save().then(newPerson => {
+    res.json(newPerson)
+  }).catch(error => {
+    console.log('error saving to MongoDB:', error.message)
+  })
 })
 
 app.get("/api/info", (req, res) =>{
