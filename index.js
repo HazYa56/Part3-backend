@@ -31,6 +31,19 @@ app.delete('/api/persons/:id', (req, res) => {
   })
 })
 
+app.put('/api/persons/:id', (req, res) => {
+  const newPerson = req.body;
+  if (newPerson.number == undefined) {
+    return res.status(400).json({ error: 'The number is missing' })
+  }
+  Person.findByIdAndUpdate(req.params.id, newPerson).then(person => {
+    res.json({
+      name: person.name,
+      number: newPerson.number
+    })
+  })
+})
+
 app.post('/api/persons/', (req, res) => {
   const newPerson = req.body;
   if (newPerson.name == undefined && newPerson.number == undefined) {
@@ -43,8 +56,6 @@ app.post('/api/persons/', (req, res) => {
   })
   person.save().then(newPerson => {
     res.json(newPerson)
-  }).catch(error => {
-    console.log('error saving to MongoDB:', error.message)
   })
 })
 
