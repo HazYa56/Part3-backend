@@ -26,8 +26,9 @@ app.get("/api/persons/:id", (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  persons = persons.filter(person => person.id != req.params.id).concat()
-  res.status(204).end()
+  Person.findByIdAndDelete(req.params.id).then(person => {
+    res.json(person)
+  })
 })
 
 app.post('/api/persons/', (req, res) => {
