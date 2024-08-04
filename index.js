@@ -49,7 +49,7 @@ app.put('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons/', (req, res, next) => {
-  const newPerson = req.body;
+  const newPerson = req.body
   if (newPerson.name == undefined && newPerson.number == undefined) {
     return res.status(400).json({ error: 'The content is missing' })
   }
@@ -63,14 +63,14 @@ app.post('/api/persons/', (req, res, next) => {
   }).catch(error => next(error))
 })
 
-app.get("/api/info", (req, res) =>{
+app.get('/api/info', (req, res) =>{
   const time = new Date()
   Person.find({}).then(persons => {
-    res.send("<p>Phonebook has info for "
+    res.send('<p>Phonebook has info for '
             + persons.length.toString()
-            + " persons.<br>"
+            + ' persons.<br>'
             + time.toString()
-            + "</p>")
+            + '</p>')
   })
 })
 

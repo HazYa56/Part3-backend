@@ -1,12 +1,12 @@
 const mongoose = require('mongoose')
-require('dotenv').config();
+require('dotenv').config()
 mongoose.set('strictQuery',false)
 
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 mongoose.connect(url)
-  .then(result => {
+  .then(
     console.log('connected to MongoDB')
-  })
+  )
   .catch(error => {
     console.log('error connecting to MongoDB:', error.message)
   })
@@ -22,7 +22,7 @@ const personSchema = new mongoose.Schema({
     minLength: 8,
     validate: {
       validator: function(number) {
-        return /^(?:\d{3}-\d{5}|\d{2}-\d{6})$/.test(number);
+        return /^(?:\d{3}-\d{5}|\d{2}-\d{6})$/.test(number)
       },
       message: props => `${props.value} is not a valid phone number!`
     },
