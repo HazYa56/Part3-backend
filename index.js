@@ -1,22 +1,22 @@
 const express = require('express')
-const morgan = require("morgan")
+const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
 
-morgan.token('data', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('data', function (req) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
 
 const Person = require('./models/person')
-app.get("/api/persons", (req, res) => {
+app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
   })
 })
 
-app.get("/api/persons/:id", (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
     .then(person => {
       if (person) {
@@ -24,9 +24,7 @@ app.get("/api/persons/:id", (req, res) => {
       } else {
         res.status(404).end()
       }
-    }).catch(error => {
-      res.status(400).send({ error: 'malformatted id' })
-    })
+    }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -36,11 +34,12 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.put('/api/persons/:id', (req, res) => {
-  const newPerson = req.body;
-  if (newPerson.number == undefined) {
-    return res.status(400).json({ error: 'The number is missing' })
-  }
-  Person.findByIdAndUpdate(req.params.id, newPerson).then(person => {
+  const newPerson = req.body
+  Person.findByIdAndUpdate(
+    req.params.id, 
+    newPerson,
+    { new: true, runValidators: true, context: 'query' }
+  ).then(person => {
     res.json({
       id: req.params.id,
       name: person.name,
@@ -49,7 +48,7 @@ app.put('/api/persons/:id', (req, res) => {
   })
 })
 
-app.post('/api/persons/', (req, res) => {
+app.post('/api/persons/', (req, res, next) => {
   const newPerson = req.body;
   if (newPerson.name == undefined && newPerson.number == undefined) {
     return res.status(400).json({ error: 'The content is missing' })
@@ -61,7 +60,7 @@ app.post('/api/persons/', (req, res) => {
   })
   person.save().then(newPerson => {
     res.json(newPerson)
-  })
+  }).catch(error => next(error))
 })
 
 app.get("/api/info", (req, res) =>{
@@ -74,6 +73,16 @@ app.get("/api/info", (req, res) =>{
             + "</p>")
   })
 })
+
+const errorHandler = (error, req, res, next) => {
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
+  }
+  next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
