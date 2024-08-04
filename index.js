@@ -17,12 +17,16 @@ app.get("/api/persons", (req, res) => {
 })
 
 app.get("/api/persons/:id", (req, res) => {
-  const person = persons.find(person => person.id == req.params.id)
-  if (person) {
-    res.json(person)
-  } else {
-    res.status(404).end()
-  }
+  Person.findById(req.params.id)
+    .then(person => {
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(404).end()
+      }
+    }).catch(error => {
+      res.status(400).send({ error: 'malformatted id' })
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -38,6 +42,7 @@ app.put('/api/persons/:id', (req, res) => {
   }
   Person.findByIdAndUpdate(req.params.id, newPerson).then(person => {
     res.json({
+      id: req.params.id,
       name: person.name,
       number: newPerson.number
     })
@@ -61,11 +66,13 @@ app.post('/api/persons/', (req, res) => {
 
 app.get("/api/info", (req, res) =>{
   const time = new Date()
-  res.send("<p>Phonebook has info for "
-           + persons.length.toString()
-           + " persons.<br>"
-           + time.toString()
-           + "</p>")
+  Person.find({}).then(persons => {
+    res.send("<p>Phonebook has info for "
+            + persons.length.toString()
+            + " persons.<br>"
+            + time.toString()
+            + "</p>")
+  })
 })
 
 const PORT = process.env.PORT
